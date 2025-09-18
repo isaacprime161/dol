@@ -8,6 +8,42 @@ use PHPMailer\PHPMailer\Exception;
 //Load Composer's autoloader (created by composer, not included with PHPMailer)
 require __DIR__ . '/../../vendor/autoload.php';
 
+// Database connection
+$host = "localhost";
+$user = "root";       
+$pass = "0000";           
+$db   = "pro_db";     
+
+$conn = new mysqli($host, $user, $pass, $db);
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+$userEmail = $_POST['email'] ?? '';
+$userName = $_POST['name'] ?? 'User';
+
+if (empty($userName) || empty($userEmail)) {
+    die("Name and Email are required!");
+}
+
+if (!filter_var($userEmail, FILTER_VALIDATE_EMAIL)) {
+    die("Invalid email address!");
+}
+
+$stmt = $conn->prepare("INSERT INTO users (name, email) VALUES (?, ?)");
+if (!$stmt) {
+    die("Prepare failed: " . $conn->error);
+}
+
+$stmt->bind_param("ss", $userName, $userEmail);
+
+if (!$stmt->execute()) {
+    die("Execute failed: " . $stmt->error);
+}
+
+$stmt->close();
+
+
 //Create an instance; passing `true` enables exceptions
 $mail = new PHPMailer(true);
 
@@ -24,12 +60,12 @@ try {
 
     //Recipients
     $mail->setFrom('isaac.munene@strathmore.edu', 'Isaac Munene');
-    $mail->addAddress('isaacmunene254@gmail.com', 'Kenneth Thigiti');     //Add a recipient
+    $mail->addAddress($userEmail, $userName); // recipient is the user     //Add a recipient
 
     //Content
     $mail->isHTML(true);                                  //Set email format to HTML
     $mail->Subject = 'Musty Flick Recruitment';
-    $mail->Body    = 'Welcome to <b>Musty Flick</b>! Today we are excited to have you on board. We hope you have a great experience with us.';
+    $mail->Body    = "Hello <b>{$userName}</b>, <br><br> Welcome to <b>Musty Flick</b>! Today we are excited to have you on board. We hope you have a great experience with us.";
 
     $mail->send();
     echo 'Message has been sent';

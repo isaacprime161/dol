@@ -12,7 +12,7 @@ $conf['db_type'] = "pdo";
 $conf['db_host'] = "localhost";
 $conf['db_user'] = "root";
 $conf['db_pass'] = "0000";
-$conf['db_name'] = "Pro";
+$conf['db_name'] = "pro_db";
 
 // Email configuration
 $conf['mail_type'] = "smtp"; // Options: smtp, sendmail, mail
